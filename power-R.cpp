@@ -3,15 +3,15 @@
 #include <vector>
 //#include <boost/tuple/tuple.hpp>
 #include "get_data.h"
-#include "/home/eariasp/include/gnuplot-iostream/gnuplot-iostream.h"
+#include "gnuplot-iostream.h"
+//#include "/home/eariasp/include/gnuplot-iostream/gnuplot-iostream.h"
 
 typedef std::vector<double> vector;
-
-int getnumberofrows(const std::string& name);
-int getnumberofcols(const std::string& name);
-vector get_data(const std::string& name, int j);
+typedef std::vector<std::vector<double>> matrix;
 
 int main(void){
+
+    Gnuplot gp;
 
     std::string name = "R-P.txt";//recibe el nombre del archivo -y su extensión- en el que se encuentran los datos
 
@@ -20,16 +20,25 @@ int main(void){
 
     N = getnumberofrows(name);
     M = getnumberofcols(name);
+                                                \
+    vector x(N, 0.0);//importante declararlos despues de esto porque luego no se vuelven a llenar,
+    vector y(N, 0.0);//si se declaran cuando M y N = 0, arroja seegmentation fault
 
-    vector x(N, 0.0);
-    vector y(N, 0.0);
-    std::vector<std::vector<double>> aux;
+    matrix data(M, std::vector<double>(N));
 
-    x = get_data(name, 0);
-    y = get_data(name, 1);
-    //toca meter ambos vectores en una matriz para pasarselo a gnuplot, si se imprime en un archivo, aumenta el tiempo de compilación innecesariamente
-    //Gnuplot gp;
-    //gp << "plot '-' w lp, plot '-' with lp\n";
-    //gp.send1d(x);
+    //std::vector <std::vector<double>> gnup(M, std::vector<double>(N));
 
+    data = get_data(name);
+
+    //LOAD VECTORS
+
+    for (int ii = 0; ii <= N-1; ++ii){
+        x[ii] = data[0][ii];
+        y[ii] = data[1][ii];
+    }
+
+    //PRINT DATA
+
+    gp << "plot '-' w lp t 'aja y q'\n";
+    gp.send1d(data);
 }
